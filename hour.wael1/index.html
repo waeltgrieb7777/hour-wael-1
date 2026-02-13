@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>العد التنازلي لأول امتحان بكالوريا</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0f0f23;
+      --card-bg: #1a1a2e;
+      --accent: #00d4ff;
+      --accent-soft: rgba(0, 212, 255, 0.15);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --border: rgba(148, 163, 184, 0.3);
+      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      --radius: 20px;
+    }
+    [data-theme="light"] {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --accent: #0ea5e9;
+      --accent-soft: rgba(14, 165, 233, 0.1);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --success: #059669;
+      --border: rgba(148, 163, 184, 0.2);
+      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      min-height: 100vh; 
+      background: linear-gradient(135deg, var(--bg-color) 0%, #1e1e3f 100%); 
+      color: var(--text-main); 
+      font-family: 'Inter', sans-serif; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      padding: 1rem; 
+      transition: all 0.3s ease; 
+    }
+    .theme-toggle {
+      position: fixed; top: 1.5rem; right: 1.5rem; z-index: 1000;
+      background: var(--card-bg); border: 2px solid var(--border); border-radius: 50%;
+      width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s ease; box-shadow: var(--shadow);
+    }
+    .app { 
+      width: 100%; max-width: 1100px; background: var(--card-bg); 
+      border-radius: var(--radius); box-shadow: var(--shadow); 
+      border: 1px solid var(--border); padding: 2.5rem; 
+    }
+    .timer-grid { 
+      display: grid; grid-template-columns: repeat(4, 1fr); 
+      gap: 1.5rem; margin: 2rem 0; direction: ltr; 
+    }
+    .time-card { 
+      background: rgba(255,255,255,0.08); 
+      backdrop-filter: blur(12px); border-radius: 20px; 
+      padding: 1.5rem 1rem; border: 1px solid var(--border); 
+      text-align: center; transition: all 0.4s ease; 
+    }
+    .time-card:hover { transform: translateY(-10px); }
+    .time-value { 
+      font-family: 'Orbitron', monospace; font-size: 2.5rem; 
+      font-weight: 800; color: var(--accent); 
+      text-shadow: 0 0 20px var(--accent-soft); 
+    }
+    .time-label { 
+      font-size: 0.85rem; color: var(--text-muted); 
+      font-weight: 600; margin-top: 0.5rem; 
+    }
+    #titleText { 
+      font-size: 2.5rem; font-weight: 700; 
+      background: linear-gradient(135deg, var(--accent), #60a5fa); 
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+      text-align: center; margin-bottom: 1rem; 
+    }
+    .status-bar { 
+      display: flex; justify-content: space-between; 
+      align-items: center; padding: 1.5rem; 
+      background: rgba(255,255,255,0.1); 
+      border-radius: 16px; margin: 2rem 0; 
+      border: 1px solid var(--border); 
+    }
+    .admin-panel { 
+      display: none; margin-top: 2rem; padding: 2rem; 
+      background: rgba(255,255,255,0.1); border-radius: 20px; 
+      border: 1px solid var(--border); 
+    }
+    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    input { 
+      width: 100%; padding: 1rem; border: 2px solid var(--border); 
+      border-radius: 12px; background: rgba(255,255,255,0.15); 
+      color: var(--text-main); font-size: 1rem; 
+    }
+    button { 
+      background: linear-gradient(135deg, var(--accent), #60a5fa); 
+      color: white; border: none; padding: 1rem 2rem; 
+      border-radius: 12px; font-weight: 600; cursor: pointer; 
+      margin: 0.5rem; 
+    }
+    @media (max-width: 768px) { 
+      .timer-grid { grid-template-columns: repeat(2, 1fr); } 
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <button class="theme-toggle" id="themeToggle" title="تبديل الثيم">☀️🌙</button>
+
+  <div class="app">
+    <h1 id="titleText">الوقت المتبقي لأول امتحان بكالوريا</h1>
+    
+    <div class="status-bar">
+      <span id="statusText">جاري التحميل...</span>
+      <span id="targetText">-</span>
+    </div>
+
+    <section class="timer-grid">
+      <div class="time-card"><div class="time-value" id="years">00</div><div class="time-label">سنة</div></div>
+      <div class="time-card"><div class="time-value" id="months">00</div><div class="time-label">شهر</div></div>
+      <div class="time-card"><div class="time-value" id="weeks">00</div><div class="time-label">أسبوع</div></div>
+      <div class="time-card"><div class="time-value" id="days">00</div><div class="time-label">يوم</div></div>
+      <div class="time-card"><div class="time-value" id="hours">00</div><div class="time-label">ساعة</div></div>
+      <div class="time-card"><div class="time-value" id="minutes">00</div><div class="time-label">دقيقة</div></div>
+      <div class="time-card"><div class="time-value" id="seconds">00</div><div class="time-label">ثانية</div></div>
+      <div class="time-card"><div class="time-value" id="ms">000</div><div class="time-label">جزء</div></div>
+    </section>
+
+    <div class="admin-panel" id="adminPanel">
+      <div class="admin-grid">
+        <div>
+          <label>العنوان:</label>
+          <input type="text" id="titleInput" placeholder="الوقت المتبقي...">
+        </div>
+        <div>
+          <label>التاريخ:</label>
+          <input type="datetime-local" id="dateInput">
+        </div>
+      </div>
+      <button id="saveBtn">حفظ التغييرات</button>
+    </div>
+  </div>
+
+  <script type="module">
+    // 🔥 Firebase الخاص بك
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgtASgM5-h1ih5dcTxFHvwI4llOpHAXkA",
+      authDomain: "countdown-timer-wael.firebaseapp.com",
+      databaseURL: "https://countdown-timer-wael-default-rtdb.firebaseio.com",
+      projectId: "countdown-timer-wael",
+      storageBucket: "countdown-timer-wael.firebasestorage.app",
+      messagingSenderId: "664365176793",
+      appId: "1:664365176793:web:dcdc9cdd0955a185f06bc8"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const timerRef = ref(db, 'countdown');
+
+    const elements = {
+      title: document.getElementById('titleText'),
+      status: document.getElementById('statusText'),
+      target: document.getElementById('targetText'),
+      years: document.getElementById('years'),
+      months: document.getElementById('months'),
+      weeks: document.getElementById('weeks'),
+      days: document.getElementById('days'),
+      hours: document.getElementById('hours'),
+      minutes: document.getElementById('minutes'),
+      seconds: document.getElementById('seconds'),
+      ms: document.getElementById('ms'),
+      panel: document.getElementById('adminPanel'),
+      titleInput: document.getElementById('titleInput'),
+      dateInput: document.getElementById('dateInput'),
+      saveBtn: document.getElementById('saveBtn')
+    };
+
+    let targetTime = Date.now() + 1000*60*60*24*30;
+
+    // قراءة Firebase
+    onValue(timerRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        elements.title.textContent = data.title || 'الوقت المتبقي لأول امتحان بكالوريا';
+        if (data.target) targetTime = data.target;
+        elements.status.textContent = '🔥 متصل مع Firebase';
+        elements.target.textContent = new Date(targetTime).toLocaleString('ar');
+      }
+    });
+
+    // العداد
+    function updateTimer() {
+      let diff = targetTime - Date.now();
+      if (diff < 0) diff = 0;
+
+      const ms = Math.floor(diff % 1000); diff = Math.floor(diff / 1000);
+      const s = diff % 60; diff = Math.floor(diff / 60);
+      const m = diff % 60; diff = Math.floor(diff / 60);
+      const h = diff % 24; diff = Math.floor(diff / 24);
+      const d = diff;
+      const y = Math.floor(d / 365);
+      const monthsLeft = d % 365;
+      const mo = Math.floor(monthsLeft / 30);
+      const weeksLeft = monthsLeft % 30;
+      const w = Math.floor(weeksLeft / 7);
+
+      elements.years.textContent = y.toString().padStart(2, '0');
+      elements.months.textContent = mo.toString().padStart(2, '0');
+      elements.weeks.textContent = w.toString().padStart(2, '0');
+      elements.days.textContent = (weeksLeft % 7).toString().padStart(2, '0');
+      elements.hours.textContent = h.toString().padStart(2, '0');
+      elements.minutes.textContent = m.toString().padStart(2, '0');
+      elements.seconds.textContent = s.toString().padStart(2, '0');
+      elements.ms.textContent = ms.toString().padStart(3, '0');
+
+      requestAnimationFrame(updateTimer);
+    }
+
+    // الثيم
+    document.getElementById('themeToggle').onclick = () => {
+      document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+    };
+
+    // لوحة الإدارة
+    if (location.search.includes('admin=1')) {
+      elements.panel.style.display = 'block';
+      elements.saveBtn.onclick = async () => {
+        const title = elements.titleInput.value || 'الحدث الجديد';
+        const date = elements.dateInput.value;
+        if (date) {
+          await set(timerRef, {
+            title,
+            target: new Date(date).getTime()
+          });
+          alert('✅ تم الحفظ لكل الزوار فوراً!');
+        }
+      };
+    }
+
+    updateTimer();
+  </script>
+</body>
+</html>
